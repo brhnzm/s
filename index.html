@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open secret</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta name="robots" content="noindex, nofollow">
+<style>
+.button {
+  background-color: #4CAF50; /* Consider using a variable for primary color */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+textarea {
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  overflow-y: hidden;
+  resize: none;
+}
+</style>
+<script>
+function copyToClipboard(elementId) {
+  const textElement = document.getElementById(elementId);
+  const copyButton = document.querySelector('button[data-copy-target="' + elementId + '"]');
+  copyButton.textContent = 'Copying...';
+  navigator.clipboard.writeText(textElement.value)
+    .then(() => {
+      copyButton.textContent = 'Copied!';
+      setTimeout(() => { copyButton.textContent = 'Copy'; }, 3000);
+    })
+    .catch(err => {
+      console.error('Failed to copy text: ', err);
+      copyButton.textContent = 'Copy';
+    });
+}
+
+function resizeTextarea(id) {
+  const textArea = document.getElementById(id);
+  textArea.style.height = 'auto';
+  textArea.style.height = textArea.scrollHeight + 'px';
+}
+
+window.onload = function() {
+  resizeTextarea('textToCopy1');
+  resizeTextarea('textToCopy2');
+};
+</script>
+</head>
+<body>
+
+<h2>Master TOTP key</h2>
+<textarea id="textToCopy1" aria-label="TOTP Key" oninput="resizeTextarea('textToCopy1')">walw iidu aUdp iqSi lfmz tsSs sgvl wdmr</textarea>
+<br>
+<button class="button" aria-label="Copy TOTP Key" data-copy-target="textToCopy1" onclick="copyToClipboard('textToCopy1')">Copy</button>
+
+<h2>Master key data</h2>
+<textarea id="textToCopy2" aria-label="Key Data" oninput="resizeTextarea('textToCopy2')"><?xml version="1.0" encoding="utf-8"?><KeyFile><Meta><Version>2.0</Version></Meta><Key><Data Hash="NALOLESH">6DCA91963D8E86D233B12AF9B8904A7C30C34A6ADFD757146E0FF3D5792BDEF3</Data></Key></KeyFile></textarea>
+<br>
+<button class="button" aria-label="Copy Key Data" data-copy-target="textToCopy2" onclick="copyToClipboard('textToCopy2')">Copy</button>
+
+<h2>Master backup codes</h2>
+<ol>
+        <li><del>TTHAOSEA</del></li>
+        <li>OUNLOALT</li>
+        <li>OSATNUEL</li>
+        <li>PPNPTOAL</li>
+        <li>NTTOANTN</li>
+        <li>PLPPOHPA</li>
+        <li>ELTUEPEE</li>
+        <li>PLPLTLEO</li>
+        <li>HHLEPENP</li>
+        <li><mark>NPSPNPSA</mark></li>
+    </ol>
+</body>
+</html>
