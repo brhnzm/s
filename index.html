@@ -1,90 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Open secret</title>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
-<meta name="robots" content="noindex, nofollow">
-<style>
-.button {
-  background-color: #4CAF50; /* Consider using a variable for primary color */
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-textarea {
-  width: 100%;
-  padding: 12px;
-  box-sizing: border-box;
-  font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  overflow-y: hidden;
-  resize: none;
-}
-</style>
-<script>
-function copyToClipboard(elementId) {
-  const textElement = document.getElementById(elementId);
-  const copyButton = document.querySelector('button[data-copy-target="' + elementId + '"]');
-  copyButton.textContent = 'Copying...';
-  navigator.clipboard.writeText(textElement.value)
-    .then(() => {
-      copyButton.textContent = 'Copied!';
-      setTimeout(() => { copyButton.textContent = 'Copy'; }, 3000);
-    })
-    .catch(err => {
-      console.error('Failed to copy text: ', err);
-      copyButton.textContent = 'Copy';
-    });
-}
-
-function resizeTextarea(id) {
-  const textArea = document.getElementById(id);
-  textArea.style.height = 'auto';
-  textArea.style.height = textArea.scrollHeight + 'px';
-}
-
-window.onload = function() {
-  resizeTextarea('textToCopy1');
-  resizeTextarea('textToCopy2');
-};
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KeePass Keyfile Generator</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    textarea { width: 100%; height: 160px; margin-top: 0.5em; }
+    input, button { font-size: 1em; margin-top: 0.5em; width: 100%; }
+  </style>
 </head>
 <body>
+  <h2>KeePass XML Keyfile Generator</h2>
+  <label for="phrase">Enter memorable phrase:</label>
+  <input type="text" id="phrase" placeholder="e.g. My secret phrase" />
+  <button onclick="generate()">Generate Keyfile</button>
 
-<h2>Master TOTP key</h2>
-<textarea id="textToCopy1" aria-label="TOTP Key" oninput="resizeTextarea('textToCopy1')">walw iidu aUdp iqSi lfmz tsSs sgvl wdmr</textarea>
-<br>
-<button class="button" aria-label="Copy TOTP Key" data-copy-target="textToCopy1" onclick="copyToClipboard('textToCopy1')">Copy</button>
+  <h3>XML Keyfile Output:</h3>
+  <textarea id="output" readonly></textarea>
+  <button id="downloadBtn" onclick="downloadKeyfile()" disabled>Download Keyfile</button>
+<img src="BN-0000000917.png" alt="BN Image" width="100%">
+  <script>
+    let xmlContent = "";
 
-<h2>Master key data</h2>
-<textarea id="textToCopy2" aria-label="Key Data" oninput="resizeTextarea('textToCopy2')"><?xml version="1.0" encoding="utf-8"?><KeyFile><Meta><Version>2.0</Version></Meta><Key><Data Hash="NALOLESH">6DCA91963D8E86D233B12AF9B8904A7C30C34A6ADFD757146E0FF3D5792BDEF3</Data></Key></KeyFile></textarea>
-<br>
-<button class="button" aria-label="Copy Key Data" data-copy-target="textToCopy2" onclick="copyToClipboard('textToCopy2')">Copy</button>
+    async function generate() {
+      const phrase = document.getElementById("phrase").value;
+      const encoder = new TextEncoder();
+      const data = encoder.encode(phrase);
 
-<h2>Master backup codes</h2>
-<ol>
-        <li><del>TTHAOSEA</del></li>
-        <li>OUNLOALT</li>
-        <li>OSATNUEL</li>
-        <li>PPNPTOAL</li>
-        <li>NTTOANTN</li>
-        <li>PLPPOHPA</li>
-        <li>ELTUEPEE</li>
-        <li>PLPLTLEO</li>
-        <li>HHLEPENP</li>
-        <li><mark>NPSPNPSA</mark></li>
-    </ol>
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const base64 = btoa(String.fromCharCode.apply(null, hashArray));
 
-  https://app.box.com/s/m7crnsuajjlqnoecbc48kzdojx5p9vpj
+      xmlContent = `<?xml version="1.0" encoding="utf-8"?>\n<KeyFile>\n  <Meta>\n    <Version>1.00</Version>\n  </Meta>\n  <Key>\n    <Data>${base64}</Data>\n  </Key>\n</KeyFile>`;
+      
+      document.getElementById("output").value = xmlContent;
+      document.getElementById("downloadBtn").disabled = false;
+    }
+
+    function downloadKeyfile() {
+      const blob = new Blob([xmlContent], { type: "application/xml" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const filename = "keepass-keyfile.key";
+
+      link.href = url;
+      link.download = filename;
+      link.click();
+
+      URL.revokeObjectURL(url);
+    }
+  </script>
 </body>
 </html>
